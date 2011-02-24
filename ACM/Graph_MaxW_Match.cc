@@ -5,8 +5,7 @@
 *
 ***************/
 
-//Notice that the N may be changed
-//by the algorithm
+//Notice that the N may be changed by the algorithm
 //Adjust the MAXTRY to be more accurate
 const int MAXN = 101;
 const int MAXTRY = 10;
