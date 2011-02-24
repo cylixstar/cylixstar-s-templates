@@ -5,6 +5,16 @@
 * All SplayTree should be init with a SplayMem
 * maxsz in Splaymem means the maximal number of nodes
 ********/
+
+/**
+ * Some useful function:
+ * 	you can define some useful function to 
+ * 	handle some cases(such as interval handling):
+ * 		push_down
+ * 		update
+ * 		make_tree
+ *		select
+ */
 template<class T>
 struct SplayNode{
 	T dat;
@@ -13,9 +23,9 @@ struct SplayNode{
 	SplayNode<T> *s[2],*fa;
 };
 
+const int maxsz=100000;
 template<class T>
 struct SplayMem{
-	const static int maxsz=100000;
 	//Zero is reserved for null
 	SplayNode<T> nod[maxsz+1];
 	SplayNode<T>* nil;
@@ -23,17 +33,18 @@ struct SplayMem{
 	int ava[maxsz+1];
 	int top;
 	SplayMem():nil(nod){
+		nil->fa=nil->s[0]=nil->s[1]=nil;
 		clear();
 	}
 	void clear(){
 		for(int i=1;i<=maxsz;i++)
 			ava[i]=i;
-		top=maxsz - 1;
+		top=maxsz;
 	}
 	SplayNode<T>* newNode(const T& dat){
 		int x = ava[top--];
 		nod[x].dat=dat;
-		nod[x].s[0]=nod[x].s[1]=nil;
+		nod[x].fa=nod[x].s[0]=nod[x].s[1]=nil;
 		return nod + x;
 	}
 	void delNode(SplayNode<T>* x){
@@ -44,11 +55,9 @@ struct SplayMem{
 
 
 template<class T,class Comp = less<T> >
-class SplayTree{
-public:
+struct SplayTree{
 	typedef SplayNode<T>* SP;
 	SP& nil;
-private:
 	SplayMem<T>& nod;
 	SP root;
 
@@ -67,7 +76,6 @@ private:
 		y->fa=x;
 	}
 	void rot(SP x,int d){
-		if(x==root)return;
 		SP y=x->fa,z=y->fa;
 		con(z,x,z->s[0]==y?0:1);
 		con(y,x->s[d^1],d);
@@ -78,15 +86,10 @@ private:
 		}
 	}
 
-public:
-
 	SplayTree(SplayMem<T>& mem):nod(mem),nil(mem.nil){
 		root = nil;
 	}
 
-	SP getRoot(){
-		return root;
-	}
 	/*
 	 * Rotate x up to root
 	 */
@@ -99,7 +102,7 @@ public:
 		while(x->fa!=below){
 			SP y = x->fa,z;
 			if(y->s[0]==x){
-				if(root==y)
+				if(y->fa==below)
 					rot(x,0);
 				else{
 					z=y->fa;
@@ -111,7 +114,7 @@ public:
 					}
 				}
 			}else{
-				if(root==y)
+				if(y->fa==below)
 					rot(x,1);
 				else{
 					z=y->fa;
