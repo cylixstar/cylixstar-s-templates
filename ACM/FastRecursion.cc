@@ -1,8 +1,9 @@
 /**
- * 快速求递推关系第n项:
+ * Fast Algor to Compute the Nth elemth of
+ * recursion sequence.
  * F(n) = sum(F[n - i] * C[i])(1<=i<=L)
- * 可以推广到F[n]为矩阵的情况
- * 注意C数组的大小应该为最长L+1
+ * F(n) can be a matrix
+ * Notice that array C should be of length L+1
  * O(L * L * lgL)
  * by cylxistar @ 2011-1-21
  *
@@ -49,12 +50,13 @@ int fastRecursion(ll n,int L,int C[maxL]){
 	for(;n;n>>=1LL,convVec(L,high,X,X,X))
 		if(n&1LL)
 			convVec(L,high,Y,X,Y);
-	//如果需要自定义初值则把以下语句改为
+	//If you need to specific initial valuesA
+	//Replace the code below with:
 	/*
 	* int ans = 0;
 	* for(int i=0;i<L;i++)
 	* ans = (ans + (ll)A[i] * Y[i]))%mod
-	* 其中A[i]为初值第i项
+	* A[i] means the ith of the initial values
 	*/
 	X[0] = 1;
 	int ans = Y[0];
