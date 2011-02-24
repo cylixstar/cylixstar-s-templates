@@ -87,9 +87,16 @@ public:
 	SP getRoot(){
 		return root;
 	}
-	void splay(SP x){
+	/*
+	 * Rotate x up to root
+	 */
+	void splay(SP x){ splay(nil,x);}
+	/*
+	 * Rotate x up to below "below"
+	 */
+	void splay(SP below,SP x){
 		if(root==nil)return;
-		while(x!=root){
+		while(x->fa!=below){
 			SP y = x->fa,z;
 			if(y->s[0]==x){
 				if(root==y)
