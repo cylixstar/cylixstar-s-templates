@@ -11,6 +11,7 @@
  * 	you can define some useful function to 
  * 	handle some cases(such as interval handling):
  * 		push_down
+ * 		put_lazy
  * 		update
  * 		make_tree
  *		select
@@ -77,9 +78,12 @@ struct SplayTree{
 	}
 	void rot(SP x,int d){
 		SP y=x->fa,z=y->fa;
+		//push_down(y);
+		//push_down(x);
 		con(z,x,z->s[0]==y?0:1);
 		con(y,x->s[d^1],d);
 		con(x,y,d^1);
+		//update(y);
 		if(y==root){
 			root=x;
 			x->fa=nil;
@@ -127,6 +131,8 @@ struct SplayTree{
 				}
 			}
 		}
+		//push_down(x)
+		//update(x)
 	}
 
 	SP find(T dat){
