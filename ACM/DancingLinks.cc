@@ -17,6 +17,7 @@ struct DancingLinks
 	vector<int>left,right,up,down;
 	vector<int>colCnt;
 	vector<int>solution;
+	vector<bool> covered;
 	int totNode,base,baseCol,baseRow;
 
 	void addNode(int row,int col)
@@ -34,6 +35,10 @@ struct DancingLinks
 		right.assign(totNode + 1,-1);
 		up.assign(totNode + 1,-1);
 		down.assign(totNode + 1,-1);
+		
+		//For heuristic functino
+		covered.assign(numCol,false);
+
 		int row,col;
 		int head,tail;
 
@@ -84,54 +89,89 @@ struct DancingLinks
 			up[head] = i;
 		}
 	}
+	//Heuristic function
+	//A lower bound of least remain rows
+	//need to select
+	int H() {
+		int ret = 0;
+		static int curNode,iterNode,enumNode,col;
+		for(int i = 0;i<numCol;i++) {
+			covered[i] = false;
+		}
+		for(curNode = right[totNode];curNode != totNode;curNode = right[curNode]) {
+			col = curNode - baseCol;
+			if(!covered[col]) {
+				ret++;
+				covered[col] = true;
+				for(iterNode = down[curNode]; iterNode != curNode; iterNode = down[iterNode]) {
+					for(enumNode = right[iterNode]; enumNode != iterNode; enumNode = right[enumNode]) {
+						if(enumNode >= baseRow) continue;
+						covered[nodes[enumNode].second] = true;
+					}
+				}
+			}
+		}
+		return ret;
+	}
 
 	//if you want to remove a column  which x node is on
 	//remember to invoke by removeColumn(nodes[x].second + baseCol)
 	void removeColumn(int colNode)
 	{
-		static int row,col,iterNode,curNode;
-		right[left[colNode]] = right[colNode];
-		left[right[colNode]] = left[colNode];
+		static int iterNode,curNode;
 		for(curNode = down[colNode];
 				curNode!=colNode;
-				curNode = down[curNode])
-		{
-			row = nodes[curNode].first + baseRow;
-			for(iterNode = right[row];iterNode!=row;iterNode = right[iterNode])
-			{
-				if(iterNode!=curNode){
+				curNode = down[curNode]) {
+			if(curNode < baseCol) {
+				for(iterNode = right[curNode];iterNode!=curNode;iterNode = right[iterNode]) {
+					if(iterNode >= baseRow) continue;
 					down[up[iterNode]] = down[iterNode];
 					up[down[iterNode]] = up[iterNode];
-					col = nodes[iterNode].second;
-					colCnt[col]--;		
+					colCnt[nodes[iterNode].second]--;
 				}
-			}			
+			} else {
+				left[right[curNode]] = left[curNode];
+				right[left[curNode]] = right[curNode];
+			}
 		}
 	}
 	
 	void restoreColumn(int colNode)
 	{
-		static int row,col,iterNode,curNode;
-		for(curNode = down[colNode];
+		static int iterNode,curNode;
+		for(curNode = up[colNode];
 				curNode!=colNode;
-				curNode = down[curNode])
-		{
-			row = nodes[curNode].first + baseRow;
-			for(iterNode = right[row];iterNode!=row;iterNode = right[iterNode])
-			{
-				if(iterNode!=curNode){
+				curNode = up[curNode]) {
+			if(curNode < baseCol) {
+				for(iterNode = right[curNode];iterNode!=curNode;iterNode = right[iterNode]) {
+					if(iterNode >= baseRow) continue;
 					down[up[iterNode]] = iterNode;
 					up[down[iterNode]] = iterNode;
-					col = nodes[iterNode].second;
-					colCnt[col]++;
+					colCnt[nodes[iterNode].second]++;
 				}
-			}			
-
+			} else {
+				left[right[curNode]] = curNode;
+				right[left[curNode]] = curNode;
+			}
 		}
-		right[left[colNode]] = colNode;
-		left[right[colNode]] = colNode;
 	}
 
+	void removeColumnRep(int colNode) {
+        static int curNode;
+        for(curNode = down[colNode];curNode!=colNode;curNode = down[curNode]) {
+            right[left[curNode]] = right[curNode];
+            left[right[curNode]] = left[curNode];
+        }
+	}
+
+    void restoreColumnRep(int colNode)
+    {
+        static int curNode;
+        for(curNode = up[colNode];curNode!=colNode;curNode = up[curNode]) {
+            right[left[curNode]] = curNode;
+            left[right[curNode]] = curNode;
+        }
+    }
 
 	void search()
 	{
@@ -144,7 +184,7 @@ struct DancingLinks
 			return;
 		}
 		int minNode = -1,minCnt = 0,curNode;
-		int row,col,iterNode;
+		int iterNode;
 		for(curNode = right[totNode];
 				curNode!=totNode;
 				curNode = right[curNode])
@@ -158,32 +198,44 @@ struct DancingLinks
 		if(minCnt==0)return;
 
 		
-		removeColumn(minNode);
-
 		for(curNode = down[minNode];
 				curNode!=minNode;
 				curNode = down[curNode])
 		{
-			row = nodes[curNode].first + baseRow;
-			for(iterNode = right[row];iterNode!=row;iterNode = right[iterNode])
-			{
-				if(iterNode!=curNode){
-					removeColumn(nodes[iterNode].second + baseCol);
+			removeColumn(curNode);
+			//removeColumnRep(curNode);
+			for(iterNode = right[curNode];iterNode != curNode;iterNode = right[iterNode]) {
+				if(iterNode < baseRow) {
+					removeColumn(iterNode);
 				}
-			}			
-			solution.push_back(row - baseRow);
+				//Replace code in this block if you want to 
+				//solve rep cover problem
+				/* 
+				if(iterNode >= baseRow)continue;
+				removeColumnRep(iterNode);
+                up[down[iterNode]] = up[iterNode];
+                down[up[iterNode]] = down[iterNode];
+                colCnt[nodes[iterNode].second]--;*/
+			}
+			solution.push_back(nodes[curNode].first);
 			//Put some branches-cut code here
 			search();
 			solution.pop_back();
-			for(iterNode = left[row];iterNode!=row;iterNode = left[iterNode])
-			{
-				if(iterNode!=curNode){
-					restoreColumn(nodes[iterNode].second + baseCol);
-				}
-			}			
+			for(iterNode = left[curNode];iterNode != curNode;iterNode = left[iterNode]) {
+				if(iterNode < baseRow) {
+					restoreColumn(iterNode);
+				}	
+				//Replace code in this block if you want to 
+				//solve rep cover problem
+				/*if(iterNode >= baseRow)continue;
+                up[down[iterNode]] = iterNode;
+                down[up[iterNode]] = iterNode;
+                restoreColumnRep(iterNode);
+                colCnt[nodes[iterNode].second]++;*/
+			}
+			restoreColumn(curNode);
+			//restoreColumnRep(curNode);
 		}
-		
-		restoreColumn(minNode);
 	}
 };
 
