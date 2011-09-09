@@ -157,21 +157,21 @@ struct DancingLinks
 	}
 
 	void removeColumnRep(int colNode) {
-        static int curNode;
-        for(curNode = down[colNode];curNode!=colNode;curNode = down[curNode]) {
-            right[left[curNode]] = right[curNode];
-            left[right[curNode]] = left[curNode];
-        }
+		static int curNode;
+		for(curNode = down[colNode];curNode!=colNode;curNode = down[curNode]) {
+			right[left[curNode]] = right[curNode];
+			left[right[curNode]] = left[curNode];
+		}
 	}
 
-    void restoreColumnRep(int colNode)
-    {
-        static int curNode;
-        for(curNode = up[colNode];curNode!=colNode;curNode = up[curNode]) {
-            right[left[curNode]] = curNode;
-            left[right[curNode]] = curNode;
-        }
-    }
+	void restoreColumnRep(int colNode)
+	{
+		static int curNode;
+		for(curNode = up[colNode];curNode!=colNode;curNode = up[curNode]) {
+			right[left[curNode]] = curNode;
+			left[right[curNode]] = curNode;
+		}
+	}
 
 	void search()
 	{
@@ -210,12 +210,11 @@ struct DancingLinks
 				}
 				//Replace code in this block if you want to 
 				//solve rep cover problem
-				/* 
-				if(iterNode >= baseRow)continue;
-				removeColumnRep(iterNode);
-                up[down[iterNode]] = up[iterNode];
-                down[up[iterNode]] = down[iterNode];
-                colCnt[nodes[iterNode].second]--;*/
+				/*if(iterNode >= baseRow)continue;
+				  removeColumnRep(iterNode);
+				  up[down[iterNode]] = up[iterNode];
+				  down[up[iterNode]] = down[iterNode];
+				  */
 			}
 			solution.push_back(nodes[curNode].first);
 			//Put some branches-cut code here
@@ -228,10 +227,10 @@ struct DancingLinks
 				//Replace code in this block if you want to 
 				//solve rep cover problem
 				/*if(iterNode >= baseRow)continue;
-                up[down[iterNode]] = iterNode;
-                down[up[iterNode]] = iterNode;
-                restoreColumnRep(iterNode);
-                colCnt[nodes[iterNode].second]++;*/
+				  up[down[iterNode]] = iterNode;
+				  down[up[iterNode]] = iterNode;
+				  restoreColumnRep(iterNode);
+				  */
 			}
 			restoreColumn(curNode);
 			//restoreColumnRep(curNode);
