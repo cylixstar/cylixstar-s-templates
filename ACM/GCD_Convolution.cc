@@ -1,6 +1,7 @@
 /**
  * GCD Convolution
  * C[i] = sum(A[x] * B[y],for (x,y) = i);
+ * O(nlogn)
  **/
 void mul(int n,int mod,const int A[],const int B[],int C[]){
     static int temp[maxn];
