@@ -146,8 +146,8 @@ void getlcp(T seq[],int len,int sa[],int rank[],int lcp[])
     for(i=0;i<len;i++)
         rank[sa[i]] = i;
     //Get LCP
-    for(i = j = 0;i<totlen;lcp[rank[i++]] = j)
-    if(rank[i]<totlen-1)
+    for(i = j = 0;i<len;lcp[rank[i++]] = j)
+    if(rank[i]<len-1)
         for(j?j--:0,p = sa[rank[i]+1];seq[i + j] == seq[p + j];j++);
 }
 
